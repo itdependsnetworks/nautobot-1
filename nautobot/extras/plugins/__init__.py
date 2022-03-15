@@ -29,6 +29,8 @@ from nautobot.utilities.choices import ButtonColorChoices
 # registry["datasource_content"], registry["secrets_providers"] are not plugin-exclusive; initialized in extras.registry
 registry["plugin_banners"] = []
 registry["plugin_custom_validators"] = collections.defaultdict(list)
+registry["plugin_filter_extensions"] = collections.defaultdict(list)
+registry["plugin_filter_forms"] = collections.defaultdict(list)
 registry["plugin_graphql_types"] = []
 registry["plugin_jobs"] = []
 registry["plugin_template_extensions"] = collections.defaultdict(list)
@@ -84,6 +86,8 @@ class PluginConfig(NautobotConfig):
     banner_function = "banner.banner"
     custom_validators = "custom_validators.custom_validators"
     datasource_contents = "datasources.datasource_contents"
+    filter_extensions = "filter_extension.filter_extensions"
+    filter_forms = "filter_form.filter_forms"
     graphql_types = "graphql.types.graphql_types"
     homepage_layout = "homepage.layout"
     jinja_filters = "jinja_filters"
@@ -171,6 +175,18 @@ class PluginConfig(NautobotConfig):
             for secrets_provider in secrets_providers:
                 register_secrets_provider(secrets_provider)
             self.features["secrets_providers"] = secrets_providers
+
+        # Register custom filtersets (if any)
+        filter_extensions = import_object(f"{self.__module__}.{self.filter_extensions}")
+        if filter_extensions is not None:
+            register_filter_extensions(filter_extensions)
+            self.features["filter_extensions"] = sorted(set(extension.model for extension in filter_extensions))
+
+        # Register custom filter forms (if any)
+        filter_forms = import_object(f"{self.__module__}.{self.filter_forms}")
+        if filter_forms is not None:
+            register_filter_forms(filter_forms)
+            self.features["filter_forms"] = sorted(set(extension.model for extension in filter_forms))
 
     @classmethod
     def validate(cls, user_config, nautobot_version):
@@ -357,6 +373,49 @@ def register_jobs(class_list):
     # Note that we do not (and cannot) update the Job records in the Nautobot database at this time.
     # That is done in response to the `nautobot_database_ready` signal, see nautobot.extras.signals.refresh_job_models
 
+
+class PluginFilterSetExtension:
+    """Class that may be returned by a registered FilterSet function."""
+
+    model = None
+
+
+def register_filter_extensions(class_list):
+    """
+    Register a list of PluginFilterSetExtension classes
+    """
+    # Validation
+    for filter_extension in class_list:
+        if not inspect.isclass(filter_extension):
+            raise TypeError(f"PluginFilterSetExtension class {filter_extension} was passed as an instance!")
+        if not issubclass(filter_extension, PluginFilterSetExtension):
+            raise TypeError(f"{filter_extension} is not a subclass of extras.plugins.PluginFilterSetExtension!")
+        if filter_extension.model is None:
+            raise TypeError(f"PluginFilterSetExtension class {filter_extension} does not define a valid model!")
+
+        registry["plugin_filter_extensions"][filter_extension.model].append(filter_extension)
+
+
+class PluginFilterForm:
+    """Class that may be returned by a registered Filter Form function."""
+
+    model = None
+
+
+def register_filter_forms(class_list):
+    """
+    Register a list of PluginFilterForm classes
+    """
+    # Validation
+    for filter_form in class_list:
+        if not inspect.isclass(filter_form):
+            raise TypeError(f"PluginFilterForm class {filter_form} was passed as an instance!")
+        if not issubclass(filter_form, PluginFilterForm):
+            raise TypeError(f"{filter_form} is not a subclass of extras.plugins.PluginFilterForm!")
+        if filter_form.model is None:
+            raise TypeError(f"PluginFilterForm class {filter_form} does not define a valid model!")
+
+        registry["plugin_filter_forms"][filter_form.model].append(filter_form)
 
 #
 # Navigation menu links

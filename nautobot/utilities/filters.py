@@ -9,6 +9,8 @@ from django_filters.utils import get_model_field, resolve_field
 
 from nautobot.dcim.forms import MACAddressField
 from nautobot.extras.models import Tag
+from nautobot.extras.registry import registry
+
 from nautobot.utilities.constants import (
     FILTER_CHAR_BASED_LOOKUP_MAP,
     FILTER_NEGATION_LOOKUP_MAP,
@@ -294,6 +296,19 @@ class BaseFilterSet(django_filters.FilterSet):
         """
         filters = super().get_filters()
 
+        content_type = None
+        filterset_name = None
+        if hasattr(cls._meta.model, '_meta'):
+            content_type = f"{cls._meta.model._meta.app_label}.{cls._meta.model._meta.model_name}"
+            filterset_name = f"{cls._meta.model.__name__}FilterSet"
+
+        if registry["plugin_filter_extensions"].get(content_type) and cls.__name__ == filterset_name:
+            for filter_extension in registry["plugin_filter_extensions"][content_type]:
+                for filter_name, filter in filter_extension().filterset().items():
+                    if filters.get(filter_name):
+                        raise ValueError("The Plugin author attempted to override an existing filter.")
+                    filters[filter_name] = filter
+            
         new_filters = {}
         for existing_filter_name, existing_filter in filters.items():
             # Loop over existing filters to extract metadata by which to create new filters

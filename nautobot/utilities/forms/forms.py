@@ -5,6 +5,7 @@ import yaml
 from django import forms
 
 from nautobot.ipam.formfields import IPNetworkFormField
+from nautobot.extras.registry import registry
 
 __all__ = (
     "AddressFieldMixin",
@@ -55,6 +56,21 @@ class BootstrapMixin(forms.BaseForm):
     """
 
     def __init__(self, *args, **kwargs):
+        content_type = None
+        form_name = None
+        try:
+            content_type = f"{self.model._meta.app_label}.{self.model._meta.model_name}"
+            form_name = f"{self.model.__name__}FilterForm"
+        except AttributeError:
+            pass
+
+        if registry["plugin_filter_forms"].get(content_type) and self.__class__.__name__ == form_name:
+            for filter_form in registry["plugin_filter_forms"][content_type]:
+                for filter_name, form in filter_form().filter_forms().items():
+                    if self.declared_fields.get(filter_name):
+                        raise ValueError("The Plugin author attempted to override an existing filter form.")
+                    self.declared_fields[filter_name] = form
+
         super().__init__(*args, **kwargs)
 
         exempt_widgets = [
