@@ -1,4 +1,5 @@
 from copy import deepcopy
+from logging import getLogger
 
 from django import forms
 from django.conf import settings
@@ -17,6 +18,8 @@ from nautobot.utilities.constants import (
     FILTER_NUMERIC_BASED_LOOKUP_MAP,
     FILTER_TREENODE_NEGATION_LOOKUP_MAP,
 )
+
+logger = getLogger("nautobot.utilities.filters")
 
 
 def multivalue_field_factory(field_class):
@@ -298,7 +301,7 @@ class BaseFilterSet(django_filters.FilterSet):
 
         content_type = None
         filterset_name = None
-        if hasattr(cls._meta.model, '_meta'):
+        if hasattr(cls._meta.model, "_meta"):
             content_type = f"{cls._meta.model._meta.app_label}.{cls._meta.model._meta.model_name}"
             filterset_name = f"{cls._meta.model.__name__}FilterSet"
 
@@ -306,9 +309,12 @@ class BaseFilterSet(django_filters.FilterSet):
             for filter_extension in registry["plugin_filter_extensions"][content_type]:
                 for filter_name, filter in filter_extension().filterset().items():
                     if filters.get(filter_name):
-                        raise ValueError("The Plugin author attempted to override an existing filter.")
+                        logger.error(
+                            "There was a conflict with filter `%s`, the custom filter was ignored." % filter_name
+                        )
+                        continue
                     filters[filter_name] = filter
-            
+
         new_filters = {}
         for existing_filter_name, existing_filter in filters.items():
             # Loop over existing filters to extract metadata by which to create new filters

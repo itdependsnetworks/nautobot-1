@@ -1,5 +1,6 @@
 import json
 import re
+from logging import getLogger
 
 import yaml
 from django import forms
@@ -19,6 +20,8 @@ __all__ = (
     "ReturnURLForm",
     "TableConfigForm",
 )
+
+logger = getLogger("nautobot.utilities.forms")
 
 
 class AddressFieldMixin(forms.ModelForm):
@@ -68,7 +71,11 @@ class BootstrapMixin(forms.BaseForm):
             for filter_form in registry["plugin_filter_forms"][content_type]:
                 for filter_name, form in filter_form().filter_forms().items():
                     if self.declared_fields.get(filter_name):
-                        raise ValueError("The Plugin author attempted to override an existing filter form.")
+                        logger.error(
+                            "There was a conflict with filter form `%s`, the custom filter form was ignored."
+                            % filter_name
+                        )
+                        continue
                     self.declared_fields[filter_name] = form
 
         super().__init__(*args, **kwargs)

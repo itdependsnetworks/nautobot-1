@@ -29,6 +29,8 @@ plugin_name/
     - banner.py             # Banners
     - custom_validators.py  # Custom Validators
     - datasources.py        # Loading Data from a Git Repository
+    - filter_extension.py   # Extending Filters
+    - filter_form.py        # Extending FilterForm
     - graphql/
       - types.py            # GraphQL Type Objects
     - homepage.py           # Home Page Content
@@ -813,6 +815,87 @@ class RandomAnimalView(View):
 ```
 
 This view retrieves a random animal from the database and and passes it as a context variable when rendering a template named `animal.html`, which doesn't exist yet. To create this template, first create a directory named `templates/nautobot_animal_sounds/` within the plugin source directory. (We use the plugin's name as a subdirectory to guard against naming collisions with other plugins.) Then, create a template named `animal.html` as described below.
+
+### Extending a Filter
+
+Plugins can extend the current Filters that are natively provided. Nautobot will already dynamically creates many filters for each field type, and allows the extension of related fields. However, that does not cover every possible use case, to list a few examples:
+
+* Usage of a custom "method", which would allow arbitrary filtering, this is how the "q" search logic is currently performed, but that opionion may or may not match your ideal use case.
+* Creation of a filter on a field that does not currently have filtering support
+* Convenience methods for highly nested fields
+* Allow usage of a custom lookup
+
+Example:
+```python
+from nautobot.extras.plugins import PluginFilterSetExtension
+from nautobot.utilities.filters import MultiValueCharFilter
+
+def suffix_search(queryset, name, value):
+    return queryset.filter(description=f"{value[0]}.nautobot.com")
+
+class TenantFilterSetExtension(PluginFilterSetExtension):
+    model = 'tenancy.tenant'
+
+    def filterset(self):
+        description = MultiValueCharFilter(field_name="description", label="Description")   # Creation of a new filter
+        sdescrip = MultiValueCharFilter(field_name="description", label="Description", method=suffix_search)   # Creation of new filter with custom method
+        dtype = MultiValueCharFilter(field_name="sites__devices__device_type__slug", label="Device Type") # Creation of a nested filter
+        return  {"myplugin-description": description, "myplugin-dtype": dtype, "myplugin-sdescrip": sdescrip}
+
+filter_extensions = [TenantFilterSetExtension]
+```
+
+!!! tip
+    The `method` parameter must be a callable in this scenario
+
+There are several conditions that must be met in order to extend a filter
+* The original FilterSet must follow the pattern: `f"{cls._meta.model.__name__}FilterSet"`
+* The class must be a subclass of `PluginFilterSetExtension`
+* The file must be named `filter_extension.py`
+* The variable filter_extensions must be declared in that file, and contain a list of `PluginFilterSetExtension` subclassed classes
+* The model attribute must be defined on the class to a valid model
+* Every key that is defined, must start with the base_url, as defined within the plugin, e.g. `myplugin-description` not `description`
+* The filterset method must return a valid `django-filters` set of key value pairs, with the key being the name and the value being a valid filter
+
+!!! tip
+    Nautobot will dynamically add filters if no `lookup_expr` or `method` keyword arguments are defined
+
+### Extending a FilterForm
+
+Plugins can extend the current Filter Forms that are natively provided, this is seen within the UI of an object types list view, which is the filters seen within the right side of the view. Nautobot provides a sane list of filter forms, however that does not cover every possible use case, to list a few examples of why one may want to extend:
+
+* The filter form is extending a custom filter
+* The filter form is providing a specfic lookup expression to a field that can be searched, such as allowing regex on name
+* The filter form is providing a search capabilites to a filter `method` which allows truly arbitrary queries
+* The filter form provides a convenience methods for highly nested fields
+
+Example:
+```python
+from django import forms
+
+from nautobot.extras.plugins import PluginFilterForm
+
+
+class TenantFilterForms(PluginFilterForm):
+    model = 'tenancy.tenant'
+        
+    def filter_forms(self):
+        description = forms.CharField(required=False, label="Description" )    # Leveraging a custom filter
+        dtype = forms.CharField(required=False, label="Device Type")           # Leveraging a custom and nested filter
+        slug__ic = forms.CharField(required=False, label="Slug Contains")      # Leveraging an existing filter
+        sdescrip = forms.CharField(required=False, label="Suffix Description") # Leveraging a custom method search filter
+        return  {"myplugin-description": description, "myplugin-dtype": dtype, "slug__ic": slug__ic, "myplugin-sdescrip": sdescrip}
+
+filter_forms = [TenantFilterForms]
+```
+
+There are several conditions that must be met in order to extend a filter
+* The original FilterSet must follow the pattern: `f"{cls._meta.model.__name__}FilterForm"`
+* The class must be a subclass of `PluginFilterForm`
+* The file must be named `filter_form.py`
+* The variable filter_forms must be declared in that file, and contain a list of `PluginFilterForm` subclassed classes
+* The model attribute must be defined on the class to a valid model in the content_type form
+* The filter_forms method must return a valid form
 
 ### Extending the Base Template
 

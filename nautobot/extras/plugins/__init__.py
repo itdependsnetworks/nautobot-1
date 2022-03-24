@@ -179,7 +179,7 @@ class PluginConfig(NautobotConfig):
         # Register custom filtersets (if any)
         filter_extensions = import_object(f"{self.__module__}.{self.filter_extensions}")
         if filter_extensions is not None:
-            register_filter_extensions(filter_extensions)
+            register_filter_extensions(filter_extensions, self.base_url)
             self.features["filter_extensions"] = sorted(set(extension.model for extension in filter_extensions))
 
         # Register custom filter forms (if any)
@@ -380,7 +380,7 @@ class PluginFilterSetExtension:
     model = None
 
 
-def register_filter_extensions(class_list):
+def register_filter_extensions(class_list, base_url):
     """
     Register a list of PluginFilterSetExtension classes
     """
@@ -392,6 +392,10 @@ def register_filter_extensions(class_list):
             raise TypeError(f"{filter_extension} is not a subclass of extras.plugins.PluginFilterSetExtension!")
         if filter_extension.model is None:
             raise TypeError(f"PluginFilterSetExtension class {filter_extension} does not define a valid model!")
+
+        for key in filter_extension().filterset().keys():
+            if not key.startswith(base_url):
+                raise ValueError(f"Attempted to create a custom filter `{key}` that did not start with `{base_url}`")
 
         registry["plugin_filter_extensions"][filter_extension.model].append(filter_extension)
 
@@ -416,6 +420,7 @@ def register_filter_forms(class_list):
             raise TypeError(f"PluginFilterForm class {filter_form} does not define a valid model!")
 
         registry["plugin_filter_forms"][filter_form.model].append(filter_form)
+
 
 #
 # Navigation menu links
