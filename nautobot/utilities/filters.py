@@ -12,6 +12,7 @@ from nautobot.dcim.forms import MACAddressField
 from nautobot.extras.models import Tag
 from nautobot.extras.registry import registry
 
+from nautobot.utilities.utils import get_filterset_for_model, get_content_type_string
 from nautobot.utilities.constants import (
     FILTER_CHAR_BASED_LOOKUP_MAP,
     FILTER_NEGATION_LOOKUP_MAP,
@@ -19,7 +20,9 @@ from nautobot.utilities.constants import (
     FILTER_TREENODE_NEGATION_LOOKUP_MAP,
 )
 
-logger = getLogger("nautobot.utilities.filters")
+logger = getLogger(__name__)
+
+FILTER_CLASS_STRINGS = []
 
 
 def multivalue_field_factory(field_class):
@@ -300,13 +303,18 @@ class BaseFilterSet(django_filters.FilterSet):
         filters = super().get_filters()
 
         content_type = None
-        filterset_name = None
+        model_filterset = None
         if hasattr(cls._meta.model, "_meta"):
-            content_type = f"{cls._meta.model._meta.app_label}.{cls._meta.model._meta.model_name}"
-            filterset_name = f"{cls._meta.model.__name__}FilterSet"
+            content_type = get_content_type_string(cls._meta.model)
+            model_filterset = get_filterset_for_model(cls._meta.model)
+            # TODO: Verify if this bruteforce approach is the best way
+            if cls not in FILTER_CLASS_STRINGS:
+                FILTER_CLASS_STRINGS.append(cls)
 
-        if registry["plugin_filter_extensions"].get(content_type) and cls.__name__ == filterset_name:
+        if registry["plugin_filter_extensions"].get(content_type) and cls is model_filterset:
             for filter_extension in registry["plugin_filter_extensions"][content_type]:
+                if not filter_extension().filterset():
+                    continue
                 for filter_name, filter in filter_extension().filterset().items():
                     if filters.get(filter_name):
                         logger.error(
@@ -368,6 +376,8 @@ class BaseFilterSet(django_filters.FilterSet):
                 new_filters[new_filter_name] = new_filter
 
         filters.update(new_filters)
+        # TODO: Verify that this brute force method is the best way to ensure pluggable filters gets updated
+        cls.base_filters = filters
         return filters
 
 

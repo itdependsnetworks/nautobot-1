@@ -431,6 +431,50 @@ def get_filterset_for_model(model):
 
     return None
 
+def get_filterform_for_model(model):
+    """Return the FilterForm class associated with a given model.
+
+    The FilterForm class is expected to be in the filters module within the application
+    associated with the model and its name is expected to be {ModelName}FilterForm
+
+    Not all models have a FilterForm defined so this function can return None as well
+
+    Returns:
+        Either the FilterForm class or none
+    """
+    if not inspect.isclass(model):
+        raise TypeError(f"model class {model} was passes as an instance!")
+    if not issubclass(model, Model):
+        raise TypeError(f"{model} is not a subclass of Django Model class")
+
+    try:
+        filter_form_name = f"{model.__name__}FilterForm"
+        if model._meta.app_label in settings.PLUGINS:
+            return getattr(import_module(f"{model._meta.app_label}.forms"), filter_form_name)
+        else:
+            return getattr(import_module(f"nautobot.{model._meta.app_label}.forms"), filter_form_name)
+    except ModuleNotFoundError:
+        # The name of the module is not correct
+        pass
+    except AttributeError:
+        # Unable to find a FilterForm for this model
+        pass
+
+    return None
+
+def get_content_type_string(model):
+    """Return the the content type string given model.
+
+    Returns:
+        The name of the model in "{app_label}.{model_name}" format
+    """
+    if not inspect.isclass(model):
+        raise TypeError(f"model class {model} was passes as an instance!")
+    if not issubclass(model, Model):
+        raise TypeError(f"{model} is not a subclass of Django Model class")
+
+    return f"{model._meta.app_label}.{model._meta.model_name}"
+
 
 # Setup UtilizationData named tuple for use by multiple methods
 UtilizationData = namedtuple("UtilizationData", ["numerator", "denominator"])

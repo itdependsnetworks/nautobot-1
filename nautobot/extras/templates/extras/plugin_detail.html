@@ -147,6 +147,20 @@
                                 </td>
                             </tr>
                             <tr>
+                                <td>Filters</td>
+                                <td>
+                                    {% if features.filter_extensions %}
+                                        <ul class="list-unstyled">
+                                            {% for filter in features.filter_extensions %}
+                                                <li>{{ filter }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% else %}
+                                        {% include 'utilities/render_boolean.html' with value=features.filter_extensions %}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
                                 <td>Home Page Content</td>
                                 <td>{% include 'utilities/render_boolean.html' with value=features.home_page %}</td>
                             </tr>

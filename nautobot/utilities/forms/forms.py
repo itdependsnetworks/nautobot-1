@@ -7,6 +7,8 @@ from django import forms
 
 from nautobot.ipam.formfields import IPNetworkFormField
 from nautobot.extras.registry import registry
+from nautobot.utilities.utils import get_filterform_for_model, get_content_type_string
+
 
 __all__ = (
     "AddressFieldMixin",
@@ -21,7 +23,7 @@ __all__ = (
     "TableConfigForm",
 )
 
-logger = getLogger("nautobot.utilities.forms")
+logger = getLogger(__name__)
 
 
 class AddressFieldMixin(forms.ModelForm):
@@ -59,17 +61,21 @@ class BootstrapMixin(forms.BaseForm):
     """
 
     def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
         content_type = None
-        form_name = None
+        form_class = None
         try:
-            content_type = f"{self.model._meta.app_label}.{self.model._meta.model_name}"
-            form_name = f"{self.model.__name__}FilterForm"
+            content_type = get_content_type_string(self.model)
+            form_class = get_filterform_for_model(self.model)
         except AttributeError:
             pass
 
-        if registry["plugin_filter_forms"].get(content_type) and self.__class__.__name__ == form_name:
-            for filter_form in registry["plugin_filter_forms"][content_type]:
-                for filter_name, form in filter_form().filter_forms().items():
+        if registry["plugin_filter_extensions"].get(content_type) and self.__class__ is form_class:
+            for filter_form in registry["plugin_filter_extensions"][content_type]:
+                if not filter_form().filter_form():
+                    continue
+                for filter_name, form in filter_form().filter_form().items():
                     if self.declared_fields.get(filter_name):
                         logger.error(
                             "There was a conflict with filter form `%s`, the custom filter form was ignored."
@@ -77,8 +83,6 @@ class BootstrapMixin(forms.BaseForm):
                         )
                         continue
                     self.declared_fields[filter_name] = form
-
-        super().__init__(*args, **kwargs)
 
         exempt_widgets = [
             forms.CheckboxInput,
