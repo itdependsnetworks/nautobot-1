@@ -25,7 +25,6 @@ from nautobot.extras.secrets import register_secrets_provider
 from nautobot.utilities.choices import ButtonColorChoices
 
 
-
 # Initialize plugin registry stores
 # registry["datasource_content"], registry["secrets_providers"] are not plugin-exclusive; initialized in extras.registry
 registry["plugin_banners"] = []
@@ -183,6 +182,7 @@ class PluginConfig(NautobotConfig):
 
             # TODO: Determine if this bruteforce design is the best way forward
             from nautobot.utilities.filters import FILTER_CLASS_STRINGS
+
             for name in FILTER_CLASS_STRINGS:
                 name.get_filters()
 

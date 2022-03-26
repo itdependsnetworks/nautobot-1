@@ -431,6 +431,7 @@ def get_filterset_for_model(model):
 
     return None
 
+
 def get_filterform_for_model(model):
     """Return the FilterForm class associated with a given model.
 
@@ -461,6 +462,7 @@ def get_filterform_for_model(model):
         pass
 
     return None
+
 
 def get_content_type_string(model):
     """Return the the content type string given model.
