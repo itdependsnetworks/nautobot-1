@@ -2038,26 +2038,6 @@ files = [
 ]
 
 [[package]]
-name = "mkdocs-python-classy"
-version = "0.1"
-description = "Mkdocs plugin to view Python Classes."
-category = "dev"
-optional = false
-python-versions = "^3.7"
-files = []
-develop = false
-
-[package.dependencies]
-mkdocs = "^1.4.0"
-pymdown-extensions = ">=6.3"
-
-[package.source]
-type = "git"
-url = "https://github.com/itdependsnetworks/mkdocs-python-classy.git"
-reference = "main"
-resolved_reference = "80dfce2e4015495c2f27cdd1feaf412e2f334be2"
-
-[[package]]
 name = "mkdocs-version-annotations"
 version = "1.0.0"
 description = "MkDocs plugin to add custom admonitions for documenting version differences"

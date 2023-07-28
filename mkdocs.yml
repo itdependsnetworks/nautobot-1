@@ -95,11 +95,11 @@ plugins:
       - "nautobot.apps.forms"
       - "nautobot.apps.models"
       - "nautobot.apps.tables"
-      - "nautobot.apps.testing"
       - "nautobot.apps.ui"
       - "nautobot.apps.urls"
       - "nautobot.apps.views"
       - "nautobot.extras.forms.base"
+      - "nautobot.apps.api"
       classy_libraries:
       - "nautobot"
   - "mkdocstrings":
@@ -296,6 +296,11 @@ nav:
       - Classy Code Reference:
         - Filtersets: "development/classy/filtersets.md"
         - Forms: "development/classy/forms.md"
+        - Homepage: "development/classy/homepage.md"
+        - Models: "development/classy/models.md"
+        - Navigation: "development/classy/navigation.md"
+        - Router: "development/classy/router.md"
+        - Serializer: "development/classy/serializer.md"
         - Tables: "development/classy/tables.md"
         - Views: "development/classy/views.md"
   - Core Developer Guide:
