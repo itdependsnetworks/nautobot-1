@@ -187,6 +187,8 @@ mkdocs-version-annotations = "~1.0.0"
 mkdocstrings = "~0.22.0"
 # Python-specific extension to mkdocstrings
 mkdocstrings-python = "~1.2.0"
+# A mkdocs plugin for `classy` Python docs
+mkdocs-python-classy = "^0.1.0"
 
 [tool.poetry.group.linting.dependencies]
 # Code style enforcement
@@ -214,9 +216,6 @@ splinter = "~0.18.1"
 
 [tool.poetry.scripts]
 nautobot-server = "nautobot.core.cli:main"
-
-[tool.poetry.group.dev.dependencies]
-mkdocs-python-classy = {git = "https://github.com/itdependsnetworks/mkdocs-python-classy.git", rev = "main"}
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
