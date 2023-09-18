@@ -7,7 +7,9 @@ from django.db import transaction
 from nautobot.core.celery import register_jobs
 from nautobot.dcim.models import Device, Location
 from nautobot.extras.choices import ObjectChangeActionChoices
-from nautobot.extras.jobs import DryRunVar, IntegerVar, Job, JobButtonReceiver, JobHookReceiver, get_task_logger
+from nautobot.extras.jobs import DryRunVar, IntegerVar, Job, JobButtonReceiver, MultiObjectVar, JobHookReceiver, get_task_logger
+from nautobot.extras.models import Tag
+
 
 
 logger = get_task_logger(__name__)
@@ -16,6 +18,7 @@ name = "ExamplePlugin jobs"
 
 class ExampleDryRunJob(Job):
     dryrun = DryRunVar()
+    tags = MultiObjectVar(model=Tag, required=False, display_field="name")
 
     class Meta:
         approval_required = True
