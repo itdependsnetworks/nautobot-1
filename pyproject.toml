@@ -103,12 +103,11 @@ select = [
     "E",  # pycodestyle
     "F",  # pyflakes
     "I",  # isort
-    "PIE",
-    "RUF",
+    "PIE",  # flake8-pie
+    "RUF",  # ruff itself
     "S",
     "W",
 ]
-
 
 [tool.ruff.lint.isort]
 combine-as-imports = true
