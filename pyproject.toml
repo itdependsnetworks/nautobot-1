@@ -104,7 +104,7 @@ select = [
     "F", # pyflakes
     "I", # isort
     "PIE", # flake8-pie
-    "RUF", # ruff itself
+    "RUF",
     "S", # flake8-bandit
     "W", # pycodestyle
 ]
