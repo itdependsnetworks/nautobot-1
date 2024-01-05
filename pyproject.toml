@@ -101,8 +101,8 @@ exclude = '''
 select = [
     "DJ",  # flake8-django
     "E",  # pycodestyle
-    "F",  # pyflakes
-    "I",  # isort
+    "F",
+    "I",
     "PIE",
     "RUF",
     "S",
