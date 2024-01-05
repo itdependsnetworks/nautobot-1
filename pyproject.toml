@@ -108,6 +108,7 @@ select = [
     "S",  # flake8-bandit
     "W",  # pycodestyle
 ]
+
 ignore = [
     "E501",  # pycodestyle: line-too-long
     "PIE808",  # unnecessary-range-start
