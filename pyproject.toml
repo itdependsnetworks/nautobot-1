@@ -113,6 +113,7 @@ ignore = [
     "E501",  # pycodestyle: line-too-long
     "PIE808",  # unnecessary-range-start
     "RUF012",  # mutable-class-default
+]
 
 [tool.ruff.lint.isort]
 combine-as-imports = true
