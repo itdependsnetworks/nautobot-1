@@ -100,8 +100,8 @@ exclude = '''
 [tool.ruff.lint]
 select = [
     "DJ",
-    "E",  # pycodestyle
-    "F",
+    "E",
+    "F", # one
     "I",
     "PIE",
     "RUF",
