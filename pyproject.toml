@@ -100,13 +100,18 @@ exclude = '''
 [tool.ruff.lint]
 select = [
     "DJ",  # flake8-django
-    "E",
-    "F",
-    "I",
+    "E",  # pycodestyle
+    "F",  # pyflakes
+    "I",  # isort
     "PIE",
     "RUF",
     "S",
     "W",
+]
+ignore = [
+    "E501",  # pycodestyle: line-too-long
+    "PIE808",  # unnecessary-range-start
+    "RUF012",  # mutable-class-default - see https://github.com/astral-sh/ruff/issues/5243
 ]
 
 [tool.ruff.lint.isort]
