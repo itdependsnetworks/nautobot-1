@@ -110,7 +110,7 @@ select = [
 ignore = [
     "E501",  # pycodestyle: line-too-long
     "PIE808",  # unnecessary-range-start
-    "RUF012"
+    "RUF012"  # two
 ]
 
 [tool.ruff.lint.isort]
