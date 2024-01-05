@@ -100,13 +100,13 @@ exclude = '''
 [tool.ruff.lint]
 select = [
     "DJ",  # flake8
-    "E",  # pycodestyle
-    "F",  # pyflakes
-    "I",  # isort
-    "PIE",  # flake8
-    "RUF",  # ruff
-    "S",  # flake8
-    "W",  # pycodestyle
+    "E",
+    "F",
+    "I",
+    "PIE",
+    "RUF",
+    "S",
+    "W",
 ]
 
 [tool.ruff.lint.isort]
