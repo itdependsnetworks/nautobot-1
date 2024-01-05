@@ -99,19 +99,19 @@ exclude = '''
 
 [tool.ruff.lint]
 select = [
-    "DJ",
-    "E",
-    "F",
-    "I",
-    "PIE",
-    "RUF",
-    "S",
-    "W",
+    "DJ", # flake8-django
+    "E", # pycodestyle
+    "F", # pyflakes
+    "I", # isort
+    "PIE", # flake8-pie
+    "RUF", # ruff itself
+    "S", # flake8-bandit
+    "W", # pycodestyle
 ]
 ignore = [
-    "E501",
-    "PIE808",
-    "RUF012",
+    "E501", # pycodestyle: line-too-long
+    "PIE808", # unnecessary-range-start
+    "RUF012", # mutable-class-default - see https://github.com/astral-sh/ruff/issues/5243
 ]
 
 [tool.ruff.lint.isort]
