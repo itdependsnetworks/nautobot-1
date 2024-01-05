@@ -105,7 +105,7 @@ select = [
     "PIE",  # flake8-pie
     "RUF",  # ruff itself
     "S",  # flake8-bandit
-    "W",
+    "W",  # pycodestyle
 ]
 
 [tool.ruff.lint.isort]
