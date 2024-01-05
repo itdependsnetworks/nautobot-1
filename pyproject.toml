@@ -97,18 +97,6 @@ exclude = '''
 )
 '''
 
-[tool.ruff.lint]
-select = [
-    "DJ",  # flake8-django
-    "E",  # pycodestyle
-    "F",  # pyflakes
-    "I",  # isort
-    "PIE",  # flake8-pie
-    "RUF",  # ruff itself
-    "S",  # flake8-bandit
-    "W",  # pycodestyle
-]
-
 
 [tool.ruff.lint.isort]
 combine-as-imports = true
