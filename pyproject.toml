@@ -99,10 +99,10 @@ exclude = '''
 
 [tool.ruff.lint]
 select = [
-    "DJ",
-    "E",
-    "F", # one
-    "I",
+    "DJ",  # flake8-django
+    "E",  # pycodestyle
+    "F",  # pyflakes
+    "I",  # isort
     "PIE",
     "RUF",
     "S",
