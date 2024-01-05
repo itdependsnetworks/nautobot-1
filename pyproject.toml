@@ -105,12 +105,12 @@ select = [
     "PIE",  # flake8-pie
     "RUF",  # ruff itself
     "S",  # flake8-bandit
-    "W"  # one
+    "W",
 ]
 ignore = [
     "E501",  # pycodestyle: line-too-long
     "PIE808",  # unnecessary-range-start
-    "RUF012"  # two
+    "RUF012",
 ]
 
 [tool.ruff.lint.isort]
