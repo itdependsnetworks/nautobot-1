@@ -99,7 +99,7 @@ exclude = '''
 
 [tool.ruff.lint]
 select = [
-    "DJ",  # flake8
+    "DJ",  # flake8-django
     "E",
     "F",
     "I",
