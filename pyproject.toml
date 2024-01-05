@@ -99,14 +99,14 @@ exclude = '''
 
 [tool.ruff.lint]
 select = [
-    "DJ", # flake8-django
-    "E", # pycodestyle
-    "F", # pyflakes
-    "I", # isort
-    "PIE", # flake8-pie
+    "DJ",
+    "E",
+    "F",
+    "I",
+    "PIE",
     "RUF",
-    "S", # flake8-bandit
-    "W", # pycodestyle
+    "S",
+    "W",
 ]
 ignore = [
     "E501", # pycodestyle: line-too-long
