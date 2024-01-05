@@ -96,7 +96,6 @@ exclude = '''
                      # the root of the project
 )
 '''
-
 [tool.ruff.lint]
 select = [
     "DJ",  # flake8-django
@@ -105,8 +104,13 @@ select = [
     "I",  # isort
     "PIE",  # flake8-pie
     "RUF",  # ruff itself
-    "S",
+    "S",  # flake8-bandit
     "W",
+]
+ignore = [
+    "E501",  # pycodestyle: line-too-long
+    "PIE808",  # unnecessary-range-start
+    "RUF012",  # mutable-class-default - see https://github.com/astral-sh/ruff/issues/5243
 ]
 
 [tool.ruff.lint.isort]
