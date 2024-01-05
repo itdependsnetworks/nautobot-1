@@ -98,7 +98,16 @@ exclude = '''
 '''
 
 [tool.ruff.lint]
-
+select = [
+    "DJ",
+    "E",
+    "F",
+    "I",
+    "PIE",
+    "RUF",
+    "S",
+    "W",
+]
 ignore = [
     "E501",
     "PIE808",
