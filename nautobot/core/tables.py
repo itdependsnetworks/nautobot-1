@@ -28,6 +28,48 @@ from nautobot.extras import choices, models
 logger = logging.getLogger(__name__)
 
 
+# Get the original metaclass
+OriginalMetaclass = django_tables2.tables.DeclarativeColumnsMetaclass
+
+# Store the original __new__ method so we can call it later
+_original_new = OriginalMetaclass.__new__
+
+
+def patched_new(mcs, name, bases, attrs):
+    """
+    Monkey patch DeclarativeColumnsMetaclass to automatically enable linkify where possible.
+    """
+    opts = django_tables2.tables.TableOptions(attrs.get("Meta", None), name)
+    from django.core.exceptions import FieldDoesNotExist
+
+    fields = []
+    if opts and hasattr(opts, "fields") and opts.fields:
+        fields = opts.fields
+    elif opts and hasattr(opts, "model") and hasattr(opts.model, "_meta") and hasattr(opts.model._meta, "fields") and opts.model._meta.fields:
+        fields = opts.model._meta.fields
+
+    for field in fields:
+        if not attrs.get(field):
+            try:
+                model_field = opts.model._meta.get_field(field)
+            except FieldDoesNotExist:
+                continue
+
+            if hasattr(model_field, "related_model"):
+                related_model = model_field.related_model
+                
+                # Check if the related model has an absolute URL method
+                if hasattr(related_model, "get_absolute_url"):
+                    attrs[field] = django_tables2.Column(linkify=True)
+                    print("MODEL FIELD", model_field)
+                
+    new_class = _original_new(mcs, name, bases, attrs)
+    return new_class  # Return the patched class
+
+
+django_tables2.tables.DeclarativeColumnsMetaclass.__new__ = patched_new
+
+
 class BaseTable(django_tables2.Table):
     """
     Default table for object lists
